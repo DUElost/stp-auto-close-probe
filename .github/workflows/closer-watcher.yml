@@ -1,0 +1,20 @@
+name: closer-watcher
+on:
+  pull_request:
+    types: [closed]
+permissions:
+  pull-requests: read
+  issues: write
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: record closed event
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGED: ${{ github.event.pull_request.merged }}
+          NUM: ${{ github.event.pull_request.number }}
+        run: |
+          echo "closer-watcher fired: PR #$NUM merged=$MERGED"
+          gh issue comment 1 --repo DUElost/stp-auto-close-probe \
+            --body "closer-watcher fired for PR #$NUM (merged=$MERGED)" || true
